@@ -1,7 +1,7 @@
-import { Component } from "@/components/ui/horizon-hero-section";
+import { HorizonHeroSection } from "@/components/ui/horizon-hero-section";
 
 const DemoOne = () => {
-    return <Component />;
+    return <HorizonHeroSection />;
 };
 
 export { DemoOne };
