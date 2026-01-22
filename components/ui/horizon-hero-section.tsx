@@ -268,7 +268,8 @@ export const HorizonHeroSection = () => {
 
         const createMountains = (theme: any) => {
             const { current: refs } = threeRefs;
-            if (!refs.scene) return;
+            const scene = refs.scene;
+            if (!scene) return;
 
             const layers = [
                 { distance: -50, height: 60, color: theme.mountain1, opacity: 1 },
@@ -307,7 +308,7 @@ export const HorizonHeroSection = () => {
                 mountain.position.z = layer.distance;
                 mountain.position.y = layer.distance; // This seems weird in original but keeping it valid
                 mountain.userData = { baseZ: layer.distance, index };
-                refs.scene.add(mountain);
+                scene.add(mountain);
                 refs.mountains.push(mountain);
             });
         };
