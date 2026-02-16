@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { performanceManager, scaleParticleCount, debounce } from "@/lib/performance-utils";
 
 interface ParticleFieldProps {
   density?: "low" | "medium" | "high";
@@ -17,17 +18,23 @@ export function ParticleField({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true, desynchronized: true });
     if (!ctx) return;
 
+    const perfConfig = performanceManager.getConfig();
     let animationFrameId: number;
     let isIntersecting = true;
     let mouseX = 0;
     let mouseY = 0;
+    let lastFrameTime = 0;
 
     const updateSize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, perfConfig.tier === "high" ? 2 : 1);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      ctx.scale(dpr, dpr);
     };
     updateSize();
 
@@ -97,94 +104,103 @@ export function ParticleField({
         }
       }
 
-      draw() {
+      draw(enableTrails: boolean, enableShadows: boolean) {
         if (!ctx) return;
 
-        // Draw trail
-        this.trail.forEach((point, index) => {
-          const trailOpacity = (index / this.trail.length) * this.opacity * 0.4;
-          const trailSize = (index / this.trail.length) * this.size;
+        // Draw trail only if enabled and performance allows
+        if (enableTrails && this.trail.length > 0) {
+          this.trail.forEach((point, index) => {
+            const trailOpacity = (index / this.trail.length) * this.opacity * 0.3;
+            const trailSize = (index / this.trail.length) * this.size;
 
-          ctx.fillStyle = this.color;
-          ctx.globalAlpha = trailOpacity;
+            ctx.fillStyle = this.color;
+            ctx.globalAlpha = trailOpacity;
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, trailSize, 0, Math.PI * 2);
+            ctx.fill();
+          });
+        }
+
+        // Draw main particle
+        if (enableShadows) {
           ctx.shadowColor = this.color;
-          ctx.shadowBlur = 8;
-          ctx.beginPath();
-          ctx.arc(point.x, point.y, trailSize, 0, Math.PI * 2);
-          ctx.fill();
-        });
-
-        // Draw main particle with glow
-        ctx.shadowColor = this.color;
-        ctx.shadowBlur = 15;
+          ctx.shadowBlur = 10;
+        }
         ctx.fillStyle = this.color;
         ctx.globalAlpha = this.opacity;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
 
-        // Reset shadow
-        ctx.shadowBlur = 0;
+        // Reset
+        if (enableShadows) {
+          ctx.shadowBlur = 0;
+        }
         ctx.globalAlpha = 1;
       }
     }
 
-    const particleCount =
+    const baseParticleCount =
       density === "high" ? 150 :
       density === "medium" ? 100 :
       60;
 
+    const particleCount = scaleParticleCount(baseParticleCount);
+
     const particles: Particle[] = [];
     for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle(canvas.width, canvas.height));
+      particles.push(new Particle(window.innerWidth, window.innerHeight));
     }
 
     function drawConnections() {
       if (!ctx) return;
 
       const maxDistance = 120;
+      const maxConnections = perfConfig.tier === "low" ? 50 : perfConfig.tier === "medium" ? 100 : 200;
+      let connectionCount = 0;
 
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
+      for (let i = 0; i < particles.length && connectionCount < maxConnections; i++) {
+        for (let j = i + 1; j < particles.length && connectionCount < maxConnections; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
           const distance = Math.sqrt(dx * dx + dy * dy);
 
           if (distance < maxDistance) {
-            const opacity = (1 - distance / maxDistance) * 0.3;
+            connectionCount++;
+            const opacity = (1 - distance / maxDistance) * 0.25;
 
-            // Draw connection line with gradient
-            const gradient = ctx.createLinearGradient(
-              particles[i].x, particles[i].y,
-              particles[j].x, particles[j].y
-            );
-            gradient.addColorStop(0, particles[i].color);
-            gradient.addColorStop(1, particles[j].color);
-
-            ctx.strokeStyle = gradient;
-            ctx.lineWidth = 1.5;
+            // Simplified line drawing without gradients for better performance
+            ctx.strokeStyle = particles[i].color;
+            ctx.lineWidth = 1;
             ctx.globalAlpha = opacity;
-            ctx.shadowColor = particles[i].color;
-            ctx.shadowBlur = 5;
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
             ctx.stroke();
-            ctx.shadowBlur = 0;
             ctx.globalAlpha = 1;
           }
         }
       }
     }
 
-    function animate() {
+    const targetFrameTime = 1000 / perfConfig.targetFPS;
+
+    function animate(timestamp: number) {
       if (!ctx || !canvas || !isIntersecting) return;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Frame throttling
+      const deltaTime = timestamp - lastFrameTime;
+      if (deltaTime < targetFrameTime) {
+        animationFrameId = requestAnimationFrame(animate);
+        return;
+      }
+      lastFrameTime = timestamp - (deltaTime % targetFrameTime);
+
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
       particles.forEach((particle) => {
-        particle.update(canvas.width, canvas.height);
-        particle.draw();
+        particle.update(window.innerWidth, window.innerHeight);
+        particle.draw(perfConfig.enableTrails, perfConfig.enableShadows);
       });
 
       drawConnections();
@@ -192,9 +208,15 @@ export function ParticleField({
       animationFrameId = requestAnimationFrame(animate);
     }
 
+    // Throttle mouse move
+    let mouseMoveTimeout: number | null = null;
     const handleMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
+      if (mouseMoveTimeout) return;
+      mouseMoveTimeout = window.setTimeout(() => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        mouseMoveTimeout = null;
+      }, 16);
     };
 
     const observer = new IntersectionObserver(
@@ -202,7 +224,12 @@ export function ParticleField({
         entries.forEach((entry) => {
           isIntersecting = entry.isIntersecting;
           if (isIntersecting) {
-            animate();
+            lastFrameTime = performance.now();
+            animate(lastFrameTime);
+          } else {
+            if (animationFrameId) {
+              cancelAnimationFrame(animationFrameId);
+            }
           }
         });
       },
@@ -210,13 +237,14 @@ export function ParticleField({
     );
 
     observer.observe(canvas);
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true } as any);
 
-    animate();
+    lastFrameTime = performance.now();
+    animate(lastFrameTime);
 
-    const handleResize = () => {
+    const handleResize = debounce(() => {
       updateSize();
-    };
+    }, 250);
 
     window.addEventListener("resize", handleResize);
 
@@ -226,6 +254,9 @@ export function ParticleField({
       observer.disconnect();
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
+      }
+      if (mouseMoveTimeout) {
+        clearTimeout(mouseMoveTimeout);
       }
     };
   }, [density]);

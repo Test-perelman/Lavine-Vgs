@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { performanceManager, scaleParticleCount, debounce } from "@/lib/performance-utils";
 
 interface AnimatedBackgroundProps {
   variant?: "subtle" | "default" | "intense";
@@ -17,18 +18,24 @@ export function AnimatedBackground({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true, desynchronized: true });
     if (!ctx) return;
 
+    const perfConfig = performanceManager.getConfig();
     let animationFrameId: number;
     let isIntersecting = true;
     let mouseX = 0;
     let mouseY = 0;
     let scrollY = 0;
+    let lastFrameTime = 0;
 
     const updateSize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, perfConfig.tier === "high" ? 2 : 1);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      ctx.scale(dpr, dpr);
     };
     updateSize();
 
@@ -149,7 +156,7 @@ export function AnimatedBackground({
         this.hoverScale += (targetScale - this.hoverScale) * 0.1;
       }
 
-      draw() {
+      draw(enableShadows: boolean) {
         if (!ctx) return;
 
         ctx.save();
@@ -157,14 +164,8 @@ export function AnimatedBackground({
         ctx.rotate(this.rotation);
         ctx.scale(this.hoverScale, this.hoverScale);
 
-        // Glass-like effect with gradient
-        const gradient = ctx.createLinearGradient(-this.width / 2, -this.height / 2, this.width / 2, this.height / 2);
-        gradient.addColorStop(0, this.color + '20');
-        gradient.addColorStop(0.5, this.color + '10');
-        gradient.addColorStop(1, this.color + '25');
-
-        // Background fill
-        ctx.fillStyle = gradient;
+        // Glass-like effect with gradient (simplified for performance)
+        ctx.fillStyle = this.color + '15';
         ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
 
         // Border
@@ -177,12 +178,14 @@ export function AnimatedBackground({
         ctx.globalAlpha = this.opacity;
         this.drawDetails();
 
-        // Subtle glow
-        ctx.shadowColor = this.color;
-        ctx.shadowBlur = 20;
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = 1;
-        ctx.strokeRect(-this.width / 2 + 5, -this.height / 2 + 5, this.width - 10, this.height - 10);
+        // Subtle glow (only on high-performance devices)
+        if (enableShadows) {
+          ctx.shadowColor = this.color;
+          ctx.shadowBlur = 15;
+          ctx.strokeStyle = this.color;
+          ctx.lineWidth = 1;
+          ctx.strokeRect(-this.width / 2 + 5, -this.height / 2 + 5, this.width - 10, this.height - 10);
+        }
 
         ctx.restore();
       }
@@ -194,21 +197,20 @@ export function AnimatedBackground({
         ctx.fillStyle = this.color;
         ctx.lineWidth = 1;
 
+        // Simplified details for better performance
         if (this.type === "floorplan") {
-          // Grid pattern like architectural floor plan
-          const gridSize = 20;
+          // Reduced grid pattern
+          const gridSize = 30;
+          ctx.beginPath();
           for (let x = -this.width / 2; x < this.width / 2; x += gridSize) {
-            ctx.beginPath();
             ctx.moveTo(x, -this.height / 2);
             ctx.lineTo(x, this.height / 2);
-            ctx.stroke();
           }
           for (let y = -this.height / 2; y < this.height / 2; y += gridSize) {
-            ctx.beginPath();
             ctx.moveTo(-this.width / 2, y);
             ctx.lineTo(this.width / 2, y);
-            ctx.stroke();
           }
+          ctx.stroke();
 
           // Simulated room outline
           ctx.lineWidth = 2;
@@ -216,18 +218,13 @@ export function AnimatedBackground({
 
         } else if (this.type === "elevation") {
           // Vertical lines like building elevation
-          const lineCount = 5;
+          ctx.beginPath();
+          const lineCount = 4;
           for (let i = 0; i < lineCount; i++) {
             const x = -this.width / 2 + (i * this.width / (lineCount - 1));
-            ctx.beginPath();
             ctx.moveTo(x, -this.height / 2);
             ctx.lineTo(x, this.height / 2);
-            ctx.stroke();
           }
-
-          // Horizontal division
-          ctx.lineWidth = 2;
-          ctx.beginPath();
           ctx.moveTo(-this.width / 2, 0);
           ctx.lineTo(this.width / 2, 0);
           ctx.stroke();
@@ -244,27 +241,21 @@ export function AnimatedBackground({
           }
 
         } else if (this.type === "section") {
-          // Section cut pattern
+          // Simplified hatch pattern
           ctx.lineWidth = 1.5;
-
-          // Diagonal hatch pattern
-          const hatchSpacing = 10;
+          ctx.beginPath();
+          const hatchSpacing = 15;
           for (let i = -this.width; i < this.width + this.height; i += hatchSpacing) {
-            ctx.beginPath();
             ctx.moveTo(-this.width / 2 + i, -this.height / 2);
             ctx.lineTo(-this.width / 2 + i - this.height, this.height / 2);
-            ctx.stroke();
           }
+          ctx.stroke();
 
         } else if (this.type === "detail") {
           // Detail callout circle
           const radius = Math.min(this.width, this.height) / 3;
           ctx.beginPath();
           ctx.arc(0, 0, radius, 0, Math.PI * 2);
-          ctx.stroke();
-
-          // Crosshair
-          ctx.beginPath();
           ctx.moveTo(-radius, 0);
           ctx.lineTo(radius, 0);
           ctx.moveTo(0, -radius);
@@ -360,7 +351,7 @@ export function AnimatedBackground({
         this.y = this.baseY + scrollY * 0.03;
       }
 
-      draw(time: number) {
+      draw(time: number, enableBlur: boolean) {
         if (!ctx) return;
 
         ctx.save();
@@ -368,12 +359,15 @@ export function AnimatedBackground({
         ctx.lineWidth = 2;
         ctx.globalAlpha = this.opacity;
 
-        // Add glow effect
-        ctx.shadowColor = this.color;
-        ctx.shadowBlur = 15;
+        // Add glow effect only on high-performance devices
+        if (enableBlur) {
+          ctx.shadowColor = this.color;
+          ctx.shadowBlur = 10;
+        }
 
         ctx.beginPath();
-        for (let x = 0; x < this.length; x += 3) {
+        // Increase step for better performance
+        for (let x = 0; x < this.length; x += 5) {
           const y = this.y + Math.sin(x * this.frequency + time * 0.002 + this.phase) * this.amplitude;
           if (x === 0) {
             ctx.moveTo(x, y);
@@ -383,46 +377,62 @@ export function AnimatedBackground({
         }
         ctx.stroke();
 
-        ctx.shadowBlur = 0;
+        if (enableBlur) {
+          ctx.shadowBlur = 0;
+        }
         ctx.restore();
       }
     }
 
-    const slabCount = variant === "intense" ? 12 : variant === "subtle" ? 6 : 9;
-    const particleCount = variant === "intense" ? 80 : variant === "subtle" ? 30 : 50;
-    const waveCount = variant === "intense" ? 5 : variant === "subtle" ? 2 : 3;
+    // Scale counts based on performance tier and variant
+    const baseSlabCount = variant === "intense" ? 12 : variant === "subtle" ? 6 : 9;
+    const baseParticleCount = variant === "intense" ? 80 : variant === "subtle" ? 30 : 50;
+    const baseWaveCount = variant === "intense" ? 5 : variant === "subtle" ? 2 : 3;
+
+    const slabCount = scaleParticleCount(baseSlabCount);
+    const particleCount = scaleParticleCount(baseParticleCount);
+    const waveCount = Math.max(1, Math.floor(baseWaveCount * perfConfig.maxParticles));
 
     const slabs: DesignSlab[] = [];
     for (let i = 0; i < slabCount; i++) {
-      slabs.push(new DesignSlab(canvas.width, canvas.height));
+      slabs.push(new DesignSlab(window.innerWidth, window.innerHeight));
     }
 
     const particles: AmbientParticle[] = [];
     for (let i = 0; i < particleCount; i++) {
-      particles.push(new AmbientParticle(canvas.width, canvas.height));
+      particles.push(new AmbientParticle(window.innerWidth, window.innerHeight));
     }
 
     const waves: Wave[] = [];
     for (let i = 0; i < waveCount; i++) {
-      waves.push(new Wave((canvas.height / (waveCount + 1)) * (i + 1), canvas.width));
+      waves.push(new Wave((window.innerHeight / (waveCount + 1)) * (i + 1), window.innerWidth));
     }
 
     // Sort by depth for proper layering
     slabs.sort((a, b) => a.depth - b.depth);
 
     let startTime = Date.now();
+    const targetFrameTime = 1000 / perfConfig.targetFPS;
 
-    function animate() {
+    function animate(timestamp: number) {
       if (!ctx || !canvas || !isIntersecting) return;
+
+      // Frame throttling for better performance
+      const deltaTime = timestamp - lastFrameTime;
+      if (deltaTime < targetFrameTime) {
+        animationFrameId = requestAnimationFrame(animate);
+        return;
+      }
+      lastFrameTime = timestamp - (deltaTime % targetFrameTime);
 
       const currentTime = Date.now() - startTime;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
       // Draw waves first (furthest back)
       waves.forEach((wave) => {
         wave.update(currentTime, scrollY);
-        wave.draw(currentTime);
+        wave.draw(currentTime, perfConfig.enableBlur);
       });
 
       // Draw ambient particles (middle layer)
@@ -433,17 +443,22 @@ export function AnimatedBackground({
 
       // Draw slabs with proper depth layering (front layer)
       slabs.forEach((slab) => {
-        slab.update(currentTime, mouseX, mouseY, scrollY, canvas.width, canvas.height);
-        slab.draw();
+        slab.update(currentTime, mouseX, mouseY, scrollY, window.innerWidth, window.innerHeight);
+        slab.draw(perfConfig.enableShadows);
       });
 
       animationFrameId = requestAnimationFrame(animate);
     }
 
+    // Throttle mouse move for better performance
+    let mouseMoveTimeout: number | null = null;
     const handleMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouseX = e.clientX - rect.left;
-      mouseY = e.clientY - rect.top;
+      if (mouseMoveTimeout) return;
+      mouseMoveTimeout = window.setTimeout(() => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        mouseMoveTimeout = null;
+      }, 16); // ~60fps
     };
 
     const handleScroll = () => {
@@ -455,7 +470,12 @@ export function AnimatedBackground({
         entries.forEach((entry) => {
           isIntersecting = entry.isIntersecting;
           if (isIntersecting) {
-            animate();
+            lastFrameTime = performance.now();
+            animate(lastFrameTime);
+          } else {
+            if (animationFrameId) {
+              cancelAnimationFrame(animationFrameId);
+            }
           }
         });
       },
@@ -464,15 +484,16 @@ export function AnimatedBackground({
 
     observer.observe(canvas);
 
-    animate();
+    lastFrameTime = performance.now();
+    animate(lastFrameTime);
 
-    const handleResize = () => {
+    const handleResize = debounce(() => {
       updateSize();
-    };
+    }, 250);
 
     window.addEventListener("resize", handleResize);
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true } as any);
+    window.addEventListener("scroll", handleScroll, { passive: true } as any);
 
     return () => {
       window.removeEventListener("resize", handleResize);
@@ -481,6 +502,9 @@ export function AnimatedBackground({
       observer.disconnect();
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
+      }
+      if (mouseMoveTimeout) {
+        clearTimeout(mouseMoveTimeout);
       }
     };
   }, [variant]);
