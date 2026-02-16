@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import gsap from "gsap";
+import { ParticleField } from "@/components/ui/particle-field";
 
 const projects = [
     { name: "Apex Architecture", type: "Digital Identity" },
@@ -22,8 +23,9 @@ export function CapabilitiesSection() {
     };
 
     return (
-        <section className="relative z-10 w-full py-24 bg-background text-foreground">
-            <div className="container px-4 md:px-6">
+        <section className="relative z-10 w-full py-24 bg-background text-foreground overflow-hidden">
+            <ParticleField density="low" />
+            <div className="container px-4 md:px-6 relative z-10">
                 <h2 className="mb-12 text-sm font-bold tracking-widest uppercase text-muted-foreground">SELECTED WORK</h2>
                 <div className="grid gap-px bg-neutral/20 border border-neutral/20">
                     {projects.map((project, index) => (

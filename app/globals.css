@@ -48,72 +48,73 @@
 
 :root {
   --radius: 0.625rem;
-  --background: #F4F2ED;
+  /* Pure white background with color palette */
+  --background: #FFFFFF;
   --foreground: #1A1A1A;
-  --card: #F4F2ED;
+  --card: #FFFFFF;
   --card-foreground: #1A1A1A;
-  --popover: #F4F2ED;
+  --popover: #FFFFFF;
   --popover-foreground: #1A1A1A;
-  --primary: #8C8681;
-  --primary-foreground: #F4F2ED;
-  --secondary: #DCD8D0;
+  --primary: #0066FF;
+  --primary-foreground: #FFFFFF;
+  --secondary: #FFED00;
   --secondary-foreground: #1A1A1A;
-  --muted: #DCD8D0;
-  --muted-foreground: #8C8681;
-  --accent: #DCD8D0;
+  --muted: #B8E6E6;
+  --muted-foreground: #1A1A1A;
+  --accent: #00CED1;
   --accent-foreground: #1A1A1A;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #B3ADA7;
-  --input: #B3ADA7;
-  --ring: #8C8681;
-  --chart-1: #8C8681;
-  --chart-2: #DCD8D0;
-  --chart-3: #B3ADA7;
-  --chart-4: #F4F2ED;
+  --border: #B8E6E6;
+  --input: #E8F4F4;
+  --ring: #0066FF;
+  --chart-1: #FFED00;
+  --chart-2: #0066FF;
+  --chart-3: #00CED1;
+  --chart-4: #B8E6E6;
   --chart-5: #1A1A1A;
-  --sidebar: #F4F2ED;
+  --sidebar: #FFFFFF;
   --sidebar-foreground: #1A1A1A;
-  --sidebar-primary: #8C8681;
-  --sidebar-primary-foreground: #F4F2ED;
-  --sidebar-accent: #DCD8D0;
+  --sidebar-primary: #0066FF;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #00CED1;
   --sidebar-accent-foreground: #1A1A1A;
-  --sidebar-border: #B3ADA7;
-  --sidebar-ring: #8C8681;
+  --sidebar-border: #B8E6E6;
+  --sidebar-ring: #0066FF;
 }
 
 .dark {
-  /* Forcing the light editorial theme even in dark mode class for consistency */
-  --background: #F4F2ED;
+  /* Pure white background with color palette */
+  --background: #FFFFFF;
   --foreground: #1A1A1A;
-  --card: #F4F2ED;
+  --card: #FFFFFF;
   --card-foreground: #1A1A1A;
-  --popover: #F4F2ED;
+  --popover: #FFFFFF;
   --popover-foreground: #1A1A1A;
-  --primary: #8C8681;
-  --primary-foreground: #F4F2ED;
-  --secondary: #DCD8D0;
+  --primary: #0066FF;
+  --primary-foreground: #FFFFFF;
+  --secondary: #FFED00;
   --secondary-foreground: #1A1A1A;
-  --muted: #DCD8D0;
-  --muted-foreground: #8C8681;
-  --accent: #DCD8D0;
+  --muted: #B8E6E6;
+  --muted-foreground: #1A1A1A;
+  --accent: #00CED1;
   --accent-foreground: #1A1A1A;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #B3ADA7;
-  --input: #B3ADA7;
-  --ring: #8C8681;
-  --chart-1: #8C8681;
-  --chart-2: #DCD8D0;
-  --chart-3: #B3ADA7;
-  --chart-4: #F4F2ED;
+  --border: #B8E6E6;
+  --input: #E8F4F4;
+  --ring: #0066FF;
+  --chart-1: #FFED00;
+  --chart-2: #0066FF;
+  --chart-3: #00CED1;
+  --chart-4: #B8E6E6;
   --chart-5: #1A1A1A;
-  --sidebar: #F4F2ED;
+  --sidebar: #FFFFFF;
   --sidebar-foreground: #1A1A1A;
-  --sidebar-primary: #8C8681;
-  --sidebar-primary-foreground: #F4F2ED;
-  --sidebar-accent: #DCD8D0;
+  --sidebar-primary: #0066FF;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #00CED1;
   --sidebar-accent-foreground: #1A1A1A;
-  --sidebar-border: #B3ADA7;
-  --sidebar-ring: #8C8681;
+  --sidebar-border: #B8E6E6;
+  --sidebar-ring: #0066FF;
 }
 
 @layer base {
@@ -123,5 +124,192 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Performance optimizations for scroll animations */
+  canvas {
+    /* GPU acceleration */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+
+    /* Force hardware acceleration */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+
+    /* High-quality rendering (NOT crisp-edges which pixelates) */
+    image-rendering: auto;
+    image-rendering: -webkit-optimize-contrast;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Optimize sticky positioning */
+  .sticky {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* Sparkle animations for logo */
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Border trace animation - sparkle follows rectangular path */
+  @keyframes border-trace {
+    0% {
+      top: 0;
+      left: 0;
+      transform: translate(-50%, -50%);
+    }
+    25% {
+      top: 0;
+      left: 100%;
+      transform: translate(-50%, -50%);
+    }
+    50% {
+      top: 100%;
+      left: 100%;
+      transform: translate(-50%, -50%);
+    }
+    75% {
+      top: 100%;
+      left: 0;
+      transform: translate(-50%, -50%);
+    }
+    100% {
+      top: 0;
+      left: 0;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  /* Continuous border trace - perpetual movement with smooth transitions */
+  @keyframes border-trace-continuous {
+    0% {
+      top: 0;
+      left: 0;
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+    24% {
+      opacity: 1;
+    }
+    25% {
+      top: 0;
+      left: 100%;
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+    49% {
+      opacity: 1;
+    }
+    50% {
+      top: 100%;
+      left: 100%;
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+    74% {
+      opacity: 1;
+    }
+    75% {
+      top: 100%;
+      left: 0;
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+    99% {
+      opacity: 1;
+    }
+    100% {
+      top: 0;
+      left: 0;
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+  }
+
+  /* Glow pulse animation for elegant accent lines */
+  @keyframes glow-pulse {
+    0%, 100% {
+      opacity: 1;
+      filter: brightness(1);
+    }
+    50% {
+      opacity: 0.7;
+      filter: brightness(1.3);
+    }
+  }
+
+  /* Pulse animation for decorative dot */
+  @keyframes pulse-dot {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 0.8;
+    }
+  }
+
+  /* Floating animation for gradient orbs */
+  @keyframes float-orb {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(40px, -50px) scale(1.1);
+    }
+    66% {
+      transform: translate(-30px, 30px) scale(0.9);
+    }
+  }
+
+  /* Grid line pulse animation - more visible */
+  @keyframes grid-pulse {
+    0%, 100% {
+      opacity: 0.1;
+    }
+    50% {
+      opacity: 0.4;
+    }
+  }
+
+  /* Grid cell pulse animation - more visible */
+  @keyframes grid-cell-pulse {
+    0%, 100% {
+      opacity: 0.05;
+    }
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  /* Apply animations to grid elements */
+  .animate-grid-pulse {
+    animation: grid-pulse 4s ease-in-out infinite;
+  }
+
+  .animate-grid-cell-pulse {
+    animation: grid-cell-pulse 6s ease-in-out infinite;
+  }
+
+  .animate-float-orb {
+    animation: float-orb linear infinite;
   }
 }

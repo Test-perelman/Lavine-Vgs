@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { AnimatedBackground } from "@/components/ui/animated-background";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -46,8 +47,9 @@ export function ManifestoSection() {
     }, []);
 
     return (
-        <section ref={containerRef} className="relative z-10 w-full min-h-[80vh] flex flex-col justify-center px-4 md:px-12 py-32 bg-background text-foreground transition-colors duration-1000">
-            <div className="max-w-6xl mx-auto">
+        <section ref={containerRef} className="relative z-10 w-full min-h-[80vh] flex flex-col justify-center px-4 md:px-12 py-32 bg-background text-foreground transition-colors duration-1000 overflow-hidden">
+            <AnimatedBackground variant="subtle" />
+            <div className="max-w-6xl mx-auto relative z-10">
                 <span className="block mb-12 text-xs font-bold tracking-[0.2em] uppercase text-muted-foreground">Studio Philosophy</span>
 
                 <p ref={textRef} className="text-4xl md:text-7xl font-light leading-[1.1] tracking-tight text-foreground mix-blend-darken">

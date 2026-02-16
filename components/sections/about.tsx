@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { GradientOrbs } from "@/components/ui/gradient-orbs";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -33,8 +34,9 @@ export function AboutSection() {
     }, []);
 
     return (
-        <section className="relative z-10 w-full min-h-[60vh] flex items-center justify-center py-24 bg-background text-foreground">
-            <div className="container px-4 md:px-6 grid md:grid-cols-2 gap-12 items-center">
+        <section className="relative z-10 w-full min-h-[60vh] flex items-center justify-center py-24 bg-background text-foreground overflow-hidden">
+            <GradientOrbs count={3} colors={["#00CED1", "#B8E6E6", "#0066FF"]} />
+            <div className="container px-4 md:px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
                 <div ref={textRef} className="text-4xl font-light leading-10 text-foreground md:text-6xl md:leading-tight">
                     <p className="flex flex-wrap gap-x-3 gap-y-1">
                         {`We are Lavine. A digital-first design studio crafting brands that demand attention. We blend cinematic motion with Swiss precision to create experiences that feel alive.`.split(" ").map((word, i) => (

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Lenis from "lenis";
-import { HorizonHeroSection as Hero } from "@/components/ui/horizon-hero-section";
+import { ScrollAnimationHero } from "@/components/ui/scroll-animation-hero";
 import { AboutSection } from "@/components/sections/about";
 import { ServicesSection } from "@/components/sections/services";
 import { CapabilitiesSection } from "@/components/sections/capabilities";
@@ -36,7 +36,7 @@ export default function Home() {
 
   return (
     <main className="w-full min-h-screen bg-background text-foreground selection:bg-primary selection:text-white">
-      <Hero />
+      <ScrollAnimationHero />
       <ManifestoSection />
       <AboutSection />
       <ServicesSection />

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { GradientOrbs } from "@/components/ui/gradient-orbs";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -29,7 +30,8 @@ export function OutroSection() {
 
     return (
         <section className="relative z-10 w-full py-48 bg-background flex flex-col items-center justify-center overflow-hidden">
-            <div className="text-center space-y-8">
+            <GradientOrbs count={5} colors={["#FFED00", "#0066FF", "#00CED1"]} />
+            <div className="text-center space-y-8 relative z-10">
                 <span className="text-sm font-mono uppercase tracking-widest text-muted-foreground">Est. 2025 — Worldwide</span>
                 <h2 ref={titleRef} className="text-[15vw] font-bold text-primary leading-none mix-blend-multiply">
                     LAVINE

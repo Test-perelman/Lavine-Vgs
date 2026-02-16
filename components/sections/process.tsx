@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { GeometricGrid } from "@/components/ui/geometric-grid";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,8 +16,9 @@ const steps = [
 
 export function ProcessSection() {
     return (
-        <section className="relative z-10 w-full py-48 bg-background text-foreground">
-            <div className="container px-4 md:px-6">
+        <section className="relative z-10 w-full py-48 bg-background text-foreground overflow-hidden">
+            <GeometricGrid cellSize={60} colors={["#B8E6E6", "#00CED1"]} />
+            <div className="container px-4 md:px-6 relative z-10">
                 <div className="flex flex-col md:flex-row gap-16">
                     <div className="md:w-1/3">
                         <div className="sticky top-32">
