@@ -60,9 +60,9 @@ export function AnimatedBackground({
       convergence: number; // controls converge/diverge behavior
       hoverScale: number;
 
-      constructor() {
-        this.baseX = Math.random() * canvas.width;
-        this.baseY = Math.random() * canvas.height;
+      constructor(canvasWidth: number, canvasHeight: number) {
+        this.baseX = Math.random() * canvasWidth;
+        this.baseY = Math.random() * canvasHeight;
         this.x = this.baseX;
         this.y = this.baseY;
 
@@ -285,9 +285,9 @@ export function AnimatedBackground({
       opacity: number;
       depth: number;
 
-      constructor() {
-        this.baseX = Math.random() * canvas.width;
-        this.baseY = Math.random() * canvas.height;
+      constructor(canvasWidth: number, canvasHeight: number) {
+        this.baseX = Math.random() * canvasWidth;
+        this.baseY = Math.random() * canvasHeight;
         this.x = this.baseX;
         this.y = this.baseY;
         this.size = Math.random() * 2 + 1;
@@ -343,10 +343,10 @@ export function AnimatedBackground({
       opacity: number;
       phase: number;
 
-      constructor(startY: number) {
+      constructor(startY: number, canvasWidth: number) {
         this.baseY = startY;
         this.y = startY;
-        this.length = canvas.width;
+        this.length = canvasWidth;
         this.amplitude = Math.random() * 40 + 30;
         this.frequency = Math.random() * 0.008 + 0.004;
         this.color = [colors.yellow, colors.blue, colors.cyan, colors.lightBlue][
@@ -394,17 +394,17 @@ export function AnimatedBackground({
 
     const slabs: DesignSlab[] = [];
     for (let i = 0; i < slabCount; i++) {
-      slabs.push(new DesignSlab());
+      slabs.push(new DesignSlab(canvas.width, canvas.height));
     }
 
     const particles: AmbientParticle[] = [];
     for (let i = 0; i < particleCount; i++) {
-      particles.push(new AmbientParticle());
+      particles.push(new AmbientParticle(canvas.width, canvas.height));
     }
 
     const waves: Wave[] = [];
     for (let i = 0; i < waveCount; i++) {
-      waves.push(new Wave((canvas.height / (waveCount + 1)) * (i + 1)));
+      waves.push(new Wave((canvas.height / (waveCount + 1)) * (i + 1), canvas.width));
     }
 
     // Sort by depth for proper layering
