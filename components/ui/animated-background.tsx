@@ -96,7 +96,7 @@ export function AnimatedBackground({
         this.hoverScale = 1;
       }
 
-      update(time: number, mouseX: number, mouseY: number, scrollY: number) {
+      update(time: number, mouseX: number, mouseY: number, scrollY: number, canvasWidth: number, canvasHeight: number) {
         // Scroll-based movement
         const scrollInfluence = scrollY * 0.1 * (this.depth - 0.5);
 
@@ -117,8 +117,8 @@ export function AnimatedBackground({
 
         // Convergence/divergence oscillation
         const convergencePhase = Math.sin(time * 0.0005 + this.convergence) * 0.5 + 0.5;
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
+        const centerX = canvasWidth / 2;
+        const centerY = canvasHeight / 2;
 
         const toCenterX = centerX - this.baseX;
         const toCenterY = centerY - this.baseY;
@@ -433,7 +433,7 @@ export function AnimatedBackground({
 
       // Draw slabs with proper depth layering (front layer)
       slabs.forEach((slab) => {
-        slab.update(currentTime, mouseX, mouseY, scrollY);
+        slab.update(currentTime, mouseX, mouseY, scrollY, canvas.width, canvas.height);
         slab.draw();
       });
 

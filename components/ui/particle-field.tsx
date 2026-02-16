@@ -50,9 +50,9 @@ export function ParticleField({
       vy: number;
       trail: {x: number, y: number, opacity: number}[];
 
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
+      constructor(canvasWidth: number, canvasHeight: number) {
+        this.x = Math.random() * canvasWidth;
+        this.y = Math.random() * canvasHeight;
         this.baseX = this.x;
         this.baseY = this.y;
         this.size = Math.random() * 3 + 2;
@@ -65,7 +65,7 @@ export function ParticleField({
         this.trail = [];
       }
 
-      update() {
+      update(canvasWidth: number, canvasHeight: number) {
         // Add current position to trail
         this.trail.push({x: this.x, y: this.y, opacity: this.opacity});
         if (this.trail.length > 12) {
@@ -91,7 +91,7 @@ export function ParticleField({
         this.x += (this.baseX - this.x) * returnSpeed;
         this.y += (this.baseY - this.y) * returnSpeed;
 
-        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+        if (this.x < 0 || this.x > canvasWidth || this.y < 0 || this.y > canvasHeight) {
           this.x = this.baseX;
           this.y = this.baseY;
         }
@@ -136,7 +136,7 @@ export function ParticleField({
 
     const particles: Particle[] = [];
     for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle());
+      particles.push(new Particle(canvas.width, canvas.height));
     }
 
     function drawConnections() {
@@ -183,7 +183,7 @@ export function ParticleField({
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       particles.forEach((particle) => {
-        particle.update();
+        particle.update(canvas.width, canvas.height);
         particle.draw();
       });
 
