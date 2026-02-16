@@ -50,9 +50,9 @@ export function ProcessSection() {
             angle: number;
             pulsePhase: number;
 
-            constructor() {
-                this.baseX = Math.random() * canvas.width;
-                this.baseY = Math.random() * canvas.height;
+            constructor(canvasWidth: number, canvasHeight: number) {
+                this.baseX = Math.random() * canvasWidth;
+                this.baseY = Math.random() * canvasHeight;
                 this.x = this.baseX;
                 this.y = this.baseY;
                 this.radius = Math.random() * 120 + 80;
@@ -126,9 +126,9 @@ export function ProcessSection() {
             opacity: number;
             phase: number;
 
-            constructor() {
-                this.baseX1 = Math.random() * canvas.width;
-                this.baseY1 = Math.random() * canvas.height;
+            constructor(canvasWidth: number, canvasHeight: number) {
+                this.baseX1 = Math.random() * canvasWidth;
+                this.baseY1 = Math.random() * canvasHeight;
                 this.baseX2 = this.baseX1 + (Math.random() - 0.5) * 400;
                 this.baseY2 = this.baseY1 + (Math.random() - 0.5) * 400;
 
@@ -166,12 +166,12 @@ export function ProcessSection() {
         // Create elements
         const orbs: FloatingOrb[] = [];
         for (let i = 0; i < 8; i++) {
-            orbs.push(new FloatingOrb());
+            orbs.push(new FloatingOrb(canvas.width, canvas.height));
         }
 
         const lines: GeometricLine[] = [];
         for (let i = 0; i < 12; i++) {
-            lines.push(new GeometricLine());
+            lines.push(new GeometricLine(canvas.width, canvas.height));
         }
 
         let startTime = Date.now();
