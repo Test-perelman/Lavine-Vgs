@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Image from "next/image";
+import { FadeUp } from "@/components/ui/motion";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -45,28 +47,35 @@ export function AtmosphereSection() {
             </h2>
 
             <div className="relative z-20 grid grid-cols-2 md:grid-cols-4 gap-4 w-full px-4 h-full mt-[-5vw]">
-                {[1, 2, 3, 4].map((n) => (
-                    <div key={n} className="relative h-[40vh] md:h-[60vh] overflow-hidden rounded-sm bg-neutral/10">
-                        {/* Placeholder for atmosphere images - using style/color blocks if no images available, but we have s1/s2/s3 */}
-                        <div className={`atmos-img w-full h-[120%] bg-cover bg-center opacity-80 grayscale hover:grayscale-0 transition-opacity duration-700`}
-                            style={{
-                                backgroundColor: n % 2 === 0 ? '#1A1A1A' : '#262626',
-                                backgroundImage: `url(${n === 1 ? '/images/s1.jpg' :
-                                        n === 2 ? '/images/interior-blue-brown.png' :
-                                            n === 3 ? '/images/interior-yellow.png' :
-                                                '/images/s2.jpg'
-                                    })`
-                            }}
-                        />
-                    </div>
-                ))}
+                {[1, 2, 3, 4].map((n) => {
+                    const imageSrc = n === 1 ? '/images/s1.jpg' :
+                                     n === 2 ? '/images/interior-blue-brown.png' :
+                                     n === 3 ? '/images/interior-yellow.png' :
+                                     '/images/s2.jpg';
+                    return (
+                        <div key={n} className="relative h-[40vh] md:h-[60vh] overflow-hidden rounded-sm bg-neutral/10">
+                            <div className="atmos-img relative w-full h-[120%]">
+                                <Image
+                                    src={imageSrc}
+                                    alt={`Atmosphere ${n}`}
+                                    fill
+                                    sizes="(max-width: 768px) 50vw, 25vw"
+                                    className="object-cover opacity-80 grayscale hover:grayscale-0 transition-opacity duration-700"
+                                    style={{
+                                        backgroundColor: n % 2 === 0 ? '#1A1A1A' : '#262626',
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
 
-            <div className="mt-32 max-w-2xl text-center z-10">
+            <FadeUp className="mt-32 max-w-2xl text-center z-10" delay={0.1}>
                 <p className="text-xl md:text-3xl font-light text-background/80 leading-relaxed">
                     "Space is the breath of art."
                 </p>
-            </div>
+            </FadeUp>
         </section>
     );
 }

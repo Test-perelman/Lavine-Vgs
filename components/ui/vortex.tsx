@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
 import React, { useEffect, useRef } from "react";
 import { createNoise3D } from "simplex-noise";
-import { motion } from "framer-motion";
 
 interface VortexProps {
   children?: any;
@@ -237,14 +236,13 @@ export const Vortex = (props: VortexProps) => {
 
   return (
     <div className={cn("relative h-full w-full", props.containerClassName)}>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+      <div
         ref={containerRef}
-        className="absolute h-full w-full inset-0 z-0 bg-transparent flex items-center justify-center"
+        className="absolute h-full w-full inset-0 z-0 bg-transparent flex items-center justify-center animate-fade-in"
+        style={{ animation: "fadeIn 1s ease-in-out" }}
       >
         <canvas ref={canvasRef}></canvas>
-      </motion.div>
+      </div>
 
       <div className={cn("relative z-10", props.className)}>
         {props.children}

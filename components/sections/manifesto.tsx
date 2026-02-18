@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { AnimatedBackground } from "@/components/ui/animated-background";
+import { FadeUp, Stagger, StaggerItem } from "@/components/ui/motion";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -50,7 +51,9 @@ export function ManifestoSection() {
         <section ref={containerRef} className="relative z-10 w-full min-h-[80vh] flex flex-col justify-center px-4 md:px-12 py-32 bg-background text-foreground transition-colors duration-1000 overflow-hidden">
             <AnimatedBackground variant="subtle" />
             <div className="max-w-6xl mx-auto relative z-10">
-                <span className="block mb-12 text-xs font-bold tracking-[0.2em] uppercase text-muted-foreground">Studio Philosophy</span>
+                <FadeUp>
+                    <span className="block mb-12 text-xs font-bold tracking-[0.2em] uppercase text-muted-foreground">Studio Philosophy</span>
+                </FadeUp>
 
                 <p ref={textRef} className="text-4xl md:text-7xl font-light leading-[1.1] tracking-tight text-foreground mix-blend-darken">
                     We believe in silence.<br />
@@ -60,26 +63,30 @@ export function ManifestoSection() {
                     the noise stops.
                 </p>
 
-                <div className="mt-24 grid md:grid-cols-3 gap-12 border-t border-border pt-12">
-                    <div className="space-y-4">
+                <Stagger
+                    className="mt-24 grid md:grid-cols-3 gap-12 border-t border-border pt-12"
+                    staggerDelay={0.15}
+                    initialDelay={0.1}
+                >
+                    <StaggerItem className="space-y-4">
                         <h3 className="text-sm font-medium uppercase tracking-widest">Restraint</h3>
                         <p className="text-muted-foreground text-lg leading-relaxed">
                             We strip away the non-essential to reveal the core truth of a brand.
                         </p>
-                    </div>
-                    <div className="space-y-4">
+                    </StaggerItem>
+                    <StaggerItem className="space-y-4">
                         <h3 className="text-sm font-medium uppercase tracking-widest">Atmosphere</h3>
                         <p className="text-muted-foreground text-lg leading-relaxed">
                             Creating environments that immerse and transport the user.
                         </p>
-                    </div>
-                    <div className="space-y-4">
+                    </StaggerItem>
+                    <StaggerItem className="space-y-4">
                         <h3 className="text-sm font-medium uppercase tracking-widest">Timelessness</h3>
                         <p className="text-muted-foreground text-lg leading-relaxed">
                             Work that endures beyond trends and fleeting moments.
                         </p>
-                    </div>
-                </div>
+                    </StaggerItem>
+                </Stagger>
             </div>
         </section>
     );

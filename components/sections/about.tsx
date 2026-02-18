@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { GradientOrbs } from "@/components/ui/gradient-orbs";
+import { ImageReveal } from "@/components/ui/motion";
+import Image from "next/image";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -45,14 +47,16 @@ export function AboutSection() {
                     </p>
                 </div>
                 {/* Image Integration */}
-                <div className="relative h-[500px] w-full overflow-hidden rounded-lg shadow-2xl">
-                    <img
+                <ImageReveal className="relative h-[500px] w-full overflow-hidden rounded-lg shadow-2xl" delay={0.15}>
+                    <Image
                         src="/images/s1.jpg"
                         alt="Studio Abstract"
-                        className="object-cover w-full h-full hover:scale-105 transition-transform duration-700 ease-out"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover hover:scale-105 transition-transform duration-700 ease-out"
                     />
                     <div className="absolute inset-0 bg-primary/10 mix-blend-multiply pointer-events-none"></div>
-                </div>
+                </ImageReveal>
             </div>
         </section>
     );

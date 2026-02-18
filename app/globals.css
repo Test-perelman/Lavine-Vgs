@@ -312,4 +312,91 @@
   .animate-float-orb {
     animation: float-orb linear infinite;
   }
+
+  /* ── MERIDIAN (Concept 2) — Architectural Monoline Logo Animations ── */
+
+  /* Ghost-reveal: letters materialise from atmospheric blur */
+  @keyframes meridian-reveal {
+    0% {
+      opacity: 0;
+      filter: blur(10px) brightness(1.5);
+    }
+    40% {
+      opacity: 0.7;
+      filter: blur(3px) brightness(1.2);
+    }
+    100% {
+      opacity: 1;
+      filter: blur(0px) brightness(1);
+    }
+  }
+
+  /* Subtitle drifts upward into place */
+  @keyframes meridian-sub-fade {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Horizontal wipe-in for Meridian accent rules */
+  @keyframes rule-wipe {
+    from { transform: scaleX(0); transform-origin: left center; }
+    to   { transform: scaleX(1); transform-origin: left center; }
+  }
+
+  /* ── ACHILLES (Concept 1) — High-Contrast Serif Animations ── */
+
+  /* Glow breath — warm light pulses across the letterforms */
+  @keyframes achilles-glow-breath {
+    0%, 100% {
+      filter:
+        drop-shadow(0 5px 18px rgba(0, 0, 0, 0.50))
+        drop-shadow(0 0 50px rgba(255, 220, 0, 0.16));
+    }
+    50% {
+      filter:
+        drop-shadow(0 5px 18px rgba(0, 0, 0, 0.45))
+        drop-shadow(0 0 85px rgba(255, 220, 0, 0.34));
+    }
+  }
+
+  /* Gradient shimmer pass — light raking across marble */
+  @keyframes gradient-rake {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ── OBSIDIAN (Concept 3) — Weight-Contrast Logo Animations ── */
+
+  /* Dominant L glows warm; rest cool — alternating atmosphere */
+  @keyframes obsidian-l-pulse {
+    0%, 100% {
+      filter:
+        drop-shadow(0 0 28px rgba(255, 200, 0, 0.35))
+        drop-shadow(0 8px 24px rgba(0, 0, 0, 0.55));
+    }
+    50% {
+      filter:
+        drop-shadow(0 0 55px rgba(255, 200, 0, 0.58))
+        drop-shadow(0 8px 24px rgba(0, 0, 0, 0.50));
+    }
+  }
+
+  @keyframes obsidian-rest-pulse {
+    0%, 100% {
+      filter:
+        drop-shadow(0 0 24px rgba(0, 117, 255, 0.28))
+        drop-shadow(0 8px 24px rgba(0, 0, 0, 0.55));
+    }
+    50% {
+      filter:
+        drop-shadow(0 0 48px rgba(0, 117, 255, 0.48))
+        drop-shadow(0 8px 24px rgba(0, 0, 0, 0.50));
+    }
+  }
 }

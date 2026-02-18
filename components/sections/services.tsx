@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import gsap from "gsap";
+import Image from "next/image";
+import { FadeUp } from "@/components/ui/motion";
+
+const fadeUp = {
+    hidden: { opacity: 0, y: 28 },
+    visible: { opacity: 1, y: 0 },
+} as const;
 
 const services = [
     {
@@ -78,26 +86,41 @@ export function ServicesSection() {
                 className="fixed top-0 left-0 w-[400px] h-[300px] rounded-lg overflow-hidden pointer-events-none z-50 opacity-0 scale-0 -translate-x-1/2 -translate-y-1/2 box-border transform-gpu"
             >
                 {services.map((service, i) => (
-                    <img
+                    <Image
                         key={i}
                         src={service.img}
                         alt={service.title}
-                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${activeService === i ? 'opacity-100' : 'opacity-0'}`}
+                        fill
+                        sizes="400px"
+                        className={`object-cover transition-opacity duration-500 ${activeService === i ? 'opacity-100' : 'opacity-0'}`}
                     />
                 ))}
                 <div className="absolute inset-0 bg-primary/10 mix-blend-multiply"></div>
             </div>
 
             <div className="container px-4 md:px-12">
-                <div className="flex justify-between items-end mb-24 border-b border-border pb-8">
-                    <h2 className="text-sm font-bold tracking-widest uppercase text-muted-foreground">Our Expertise</h2>
-                    <span className="text-xs font-mono text-muted-foreground hidden md:block">Index 01 — 05</span>
-                </div>
+                <FadeUp>
+                    <div className="flex justify-between items-end mb-24 border-b border-border pb-8">
+                        <h2 className="text-sm font-bold tracking-widest uppercase text-muted-foreground">Our Expertise</h2>
+                        <span className="text-xs font-mono text-muted-foreground hidden md:block">Index 01 — 05</span>
+                    </div>
+                </FadeUp>
 
-                <div className="flex flex-col">
+                <motion.div
+                    className="flex flex-col"
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: "-60px" }}
+                    variants={{
+                        hidden: {},
+                        visible: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
+                    }}
+                >
                     {services.map((service, index) => (
-                        <div
+                        <motion.div
                             key={index}
+                            variants={fadeUp}
+                            transition={{ duration: 0.75, ease: [0.25, 0.1, 0.25, 1] }}
                             onMouseEnter={() => handleMouseEnter(index)}
                             onMouseLeave={handleMouseLeave}
                             className="group relative flex flex-col md:flex-row md:items-center py-12 border-b border-border hover:border-primary/50 transition-colors duration-500 cursor-pointer"
@@ -121,9 +144,9 @@ export function ServicesSection() {
                                     {service.tags.map(tag => <span key={tag}>{tag}</span>)}
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
             </div>
         </section>
     );
